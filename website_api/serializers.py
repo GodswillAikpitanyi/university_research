@@ -1,25 +1,56 @@
 from rest_framework import serializers
-from .models import (CourseDetails, Organization, Universities, AllPrograms, AssessmentType, Supplementary,
-                     InternationalElement, Summer, SummerOptional, Winter, WinterOptional)
+from .models import (CourseDetails, Organization, Universities, AllPrograms, ELearning, Service, CostFunding,
+                     AssessmentType, Supplementary, ThirdSemester, Requirement, AcademicRequirement,
+                     LanguageRequirement, ApplicationDeadline, InternationalElement, SummerTopics, SummerOptionalTopics,
+                     WinterTopics, WinterOptionalTopics)
 
 
 class UniversitiesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Universities
-        fields = ('id', 'university_name')
+        fields = ('uni_id', 'user_id', 'university_name', 'university_image')
 
 
+class ELearningSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ELearning
+        fields = ('program_id', 'e_learning_description', 'e_learning_participation', 'ects_availability',
+                  'sign_up_availability')
+
+
+class ServiceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Service
+        fields = ('program_id', 'part_time_employment', 'accommodation', 'general_intl_student_support')
+
+
+class CostFundingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CostFunding
+        fields = ('program_id', 'tuition_fee', 'semester_contribution', 'cost_of_living',
+                  'funding_opportunities', 'funding_description')
+
+
+class RequirementSerializer(serializers.ModelSerializer):
+    academic_requirement = serializers.SlugRelatedField(many=True, read_only=True, slug_field='academic_requirement')
+    language_requirement = serializers.SlugRelatedField(many=True, read_only=True, slug_field='language_requirement')
+    application_deadline = serializers.SlugRelatedField(many=True, read_only=True, slug_field='application_deadline')
+
+    class Meta:
+        model = Requirement
+        fields = ('program_id', 'academic_requirement', 'language_requirement', 'application_deadline')
 
 
 class AllProgramsSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = AllPrograms
-        fields = ('id', 'universities', 'program_type', 'degree_type', 'field_of_study', 'course_name', 'start_date',
-                  'semester_duration', 'tuition', 'language', 'mode_of_study', 'institution_type')
+        fields = ('program_id', 'uni_id', 'program_type', 'degree_type', 'field_of_study', 'course_name', 'start_date',
+                  'duration', 'tuition', 'language', 'mode_of_study', 'institution_type')
+
 
 
 class OrganizationSerializer(serializers.ModelSerializer):
-    top_details = serializers.SlugRelatedField(many=True, read_only=True, slug_field='details')
     summer_topics = serializers.SlugRelatedField(many=True, read_only=True, slug_field='summer_topics')
     summer_optional = serializers.SlugRelatedField(many=True, read_only=True, slug_field='summer_op_topics')
     winter_topics = serializers.SlugRelatedField(many=True, read_only=True, slug_field='winter_topics')
@@ -33,7 +64,7 @@ class OrganizationSerializer(serializers.ModelSerializer):
 
 
 class CourseDetailsSerializer(serializers.ModelSerializer):
-    organization = OrganizationSerializer(many=True, read_only=True)
+    organization = OrganizationSerializer()
     assessment_type = serializers.SlugRelatedField(many=True, read_only=True, slug_field='ass_type')
     supplementary = serializers.SlugRelatedField(many=True, read_only=True, slug_field='supplementary')
     international_element = serializers.SlugRelatedField(many=True, read_only=True, slug_field='int_element')
@@ -42,7 +73,4 @@ class CourseDetailsSerializer(serializers.ModelSerializer):
         model = CourseDetails
         fields = ('program', 'organization', 'assessment_type', 'supplementary', 'international_element', 'internship',
                   'english_language', 'german_language', 'summer', 'winter')
-
-
-
 
