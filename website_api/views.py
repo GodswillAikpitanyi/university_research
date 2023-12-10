@@ -127,5 +127,21 @@ class ELearningDetailedList(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = ELearningSerializer
 
 
+class ServiceList(generics.ListCreateAPIView):
+
+    """
+    List all programs, or create a new program
+    """
+    queryset = Service.objects.all()
+    serializer_class = ServiceSerializer
+
+
+class ServiceDetailedList(generics.RetrieveUpdateDestroyAPIView):
+    """
+    List all course details per program
+    """
+    queryset = Service.objects.all()
+    serializer_class = ServiceSerializer
+
 
 

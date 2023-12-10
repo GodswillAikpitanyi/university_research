@@ -15,6 +15,8 @@ urlpatterns = [
     path('cost_funding/<int:pk>/', views.CostFundingDetailedList.as_view()),
     path('e_learning/', views.ELearningList.as_view()),
     path('e_learning/<int:pk>/', views.ELearningDetailedList.as_view()),
+    path('service/', views.ServiceList.as_view()),
+    path('service/<int:pk>/', views.ServiceDetailedList.as_view()),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
