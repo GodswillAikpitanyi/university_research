@@ -144,4 +144,20 @@ class ServiceDetailedList(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = ServiceSerializer
 
 
+class RequirementList(generics.ListCreateAPIView):
+
+    """
+    List all programs, or create a new program
+    """
+    queryset = Requirement.objects.all()
+    serializer_class = RequirementSerializer
+
+
+class RequirementDetailedList(generics.RetrieveUpdateDestroyAPIView):
+    """
+    List all course details per program
+    """
+    queryset = Requirement.objects.all()
+    serializer_class = RequirementSerializer
+
 
