@@ -110,5 +110,22 @@ class CostFundingDetailedList(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = CostFundingSerializer
 
 
+class ELearningList(generics.ListCreateAPIView):
+
+    """
+    List all programs, or create a new program
+    """
+    queryset = ELearning.objects.all()
+    serializer_class = ELearningSerializer
+
+
+class ELearningDetailedList(generics.RetrieveUpdateDestroyAPIView):
+    """
+    List all course details per program
+    """
+    queryset = ELearning.objects.all()
+    serializer_class = ELearningSerializer
+
+
 
 
