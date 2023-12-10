@@ -5,8 +5,9 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, generics
 
-from .serializers import AllProgramsSerializer, CourseDetailsSerializer, UniversitiesSerializer
-from .models import AllPrograms, CourseDetails, Universities
+from .serializers import AllProgramsSerializer, CourseDetailsSerializer, UniversitiesSerializer, CostFundingSerializer,\
+    ELearningSerializer, ServiceSerializer, RequirementSerializer
+from .models import AllPrograms, CourseDetails, Universities, CostFunding, ELearning, Service, Requirement
 
 
 class UniversitiesList(APIView):
@@ -90,4 +91,24 @@ class CourseDetailsDetailedList(generics.RetrieveUpdateDestroyAPIView):
     """
     queryset = CourseDetails.objects.all()
     serializer_class = CourseDetailsSerializer
+
+
+class CostFundingList(generics.ListCreateAPIView):
+
+    """
+    List all programs, or create a new program
+    """
+    queryset = CostFunding.objects.all()
+    serializer_class = CostFundingSerializer
+
+
+class CostFundingDetailedList(generics.RetrieveUpdateDestroyAPIView):
+    """
+    List all course details per program
+    """
+    queryset = CostFunding.objects.all()
+    serializer_class = CostFundingSerializer
+
+
+
 

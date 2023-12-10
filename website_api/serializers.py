@@ -1,8 +1,7 @@
 from rest_framework import serializers
+
 from .models import (CourseDetails, Organization, Universities, AllPrograms, ELearning, Service, CostFunding,
-                     AssessmentType, Supplementary, ThirdSemester, Requirement, AcademicRequirement,
-                     LanguageRequirement, ApplicationDeadline, InternationalElement, SummerTopics, SummerOptionalTopics,
-                     WinterTopics, WinterOptionalTopics)
+                     Requirement)
 
 
 class UniversitiesSerializer(serializers.ModelSerializer):
@@ -19,9 +18,11 @@ class ELearningSerializer(serializers.ModelSerializer):
 
 
 class ServiceSerializer(serializers.ModelSerializer):
+    support = serializers.SlugRelatedField(read_only=True, slug_field='support')
+
     class Meta:
         model = Service
-        fields = ('program_id', 'part_time_employment', 'accommodation', 'general_intl_student_support')
+        fields = ('program_id', 'part_time_employment', 'accommodation', 'general_intl_student_support', 'support')
 
 
 class CostFundingSerializer(serializers.ModelSerializer):
@@ -71,6 +72,6 @@ class CourseDetailsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CourseDetails
-        fields = ('program', 'organization', 'assessment_type', 'supplementary', 'international_element', 'internship',
-                  'english_language', 'german_language', 'summer', 'winter')
+        fields = ('program', 'organization', 'assessment_type', 'supplementary', 'international_element',
+                  'internship', 'english_language', 'german_language', 'summer', 'winter')
 
