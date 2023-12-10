@@ -11,10 +11,12 @@ class UniversitiesSerializer(serializers.ModelSerializer):
 
 
 class ELearningSerializer(serializers.ModelSerializer):
+    learning_module = serializers.SlugRelatedField(many=True, read_only=True, slug_field='learning_module')
+
     class Meta:
         model = ELearning
         fields = ('program_id', 'e_learning_description', 'e_learning_participation', 'ects_availability',
-                  'sign_up_availability')
+                  'sign_up_availability', 'learning_module')
 
 
 class ServiceSerializer(serializers.ModelSerializer):
