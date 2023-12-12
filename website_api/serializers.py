@@ -7,7 +7,9 @@ from .models import (CourseDetails, Organization, Universities, AllPrograms, ELe
 class UniversitiesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Universities
-        fields = ('uni_id', 'user_id', 'university_name', 'university_image')
+        fields = ('uni_id', 'user_id', 'university_name', 'university_image', 'university_address',
+                  'university_website', 'facebook_handle', 'histagram_handle', 'whatsapp_handle',
+                  'linkedin_handle')
 
 
 class ELearningSerializer(serializers.ModelSerializer):

@@ -46,13 +46,18 @@ class Universities(models.Model):
     uni_id = models.BigAutoField(primary_key=True)
     user_id = models.OneToOneField(Users, related_name="universities", on_delete=models.CASCADE, null=True)
     university_name = models.CharField(max_length=500, unique=True)
-    university_image = models.FileField(upload_to='images/')
     university_address = models.CharField(max_length=2000)
     university_website = models.CharField(max_length=500)
     facebook_handle = models.CharField(max_length=1000)
     histagram_handle = models.CharField(max_length=1000)
     whatsapp_handle = models.CharField(max_length=1000)
     linkedin_handle = models.CharField(max_length=1000)
+
+    def upload_photo(self, filename):
+        path = 'images/university_photo/{}' + filename
+        return path
+
+    university_image = models.ImageField(upload_to=upload_photo)
 
     def __str__(self):
         return f"{self.university_name}"
