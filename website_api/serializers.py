@@ -7,10 +7,18 @@ from .models import (Users, Universities, AllPrograms, Overview, CourseDetails, 
 class AllProgramsSerializer(serializers.ModelSerializer):
     class Meta:
         model = AllPrograms
-        fields = ['program_id', 'uni_id', 'coordinator_name', 'coordinator_address', 'coordinator_phone',
+        fields = ('program_id', 'uni_id', 'coordinator_name', 'coordinator_address', 'coordinator_phone',
                   'coordinator_phone', 'coordinator_email', 'program_title', 'program_abbreviation',
                   'degree_abbreviation', 'program_website', 'instagram_url', 'linkedin_url', 'facebook_url',
-                  'twitter_url', 'youtube_url']
+                  'twitter_url', 'youtube_url')
+
+class UniversitiesSerializer(serializers.ModelSerializer):
+    all_programs = AllProgramsSerializer()
+
+    class Meta:
+        model = Universities
+        fields = ['uni_id', 'user_id', 'institution_name', 'institution_address', 'institution_location',
+                  'about_university', 'state', 'institution_logo', 'institution_image', 'all_programs']
 
 
 class OverviewSerializer(serializers.ModelSerializer):
@@ -47,13 +55,6 @@ class CourseDetailsSerializer(serializers.ModelSerializer):
 
 
 
-class UniversitiesSerializer(serializers.ModelSerializer):
-    program_details = AllProgramsSerializer()
-
-    class Meta:
-        model = Universities
-        fields = ['uni_id', 'user_id', 'institution_name', 'institution_address', 'institution_location',
-                  'about_university', 'state', 'institution_logo', 'institution_image', 'program_details']
 
 
 

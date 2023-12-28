@@ -61,7 +61,7 @@ class Universities(models.Model):
 class AllPrograms(models.Model):
     # This table that registered all university programs details.
     program_id = models.BigAutoField(primary_key=True)
-    uni_id = models.ForeignKey(Universities, related_name="all_programs", on_delete=models.CASCADE)  # Foreign key referencing University table
+    uni_id = models.OneToOneField(Universities, related_name="all_programs", on_delete=models.CASCADE)  # Foreign key referencing University table
     coordinator_name = models.CharField(max_length=1000)
     coordinator_address = models.CharField(max_length=2000)
     coordinator_phone = PhoneNumberField(null=False, blank=False)
