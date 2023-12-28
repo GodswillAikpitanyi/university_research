@@ -1,15 +1,13 @@
 
 from rest_framework import generics
 
-from .serializers import AllProgramsSerializer, CourseDetailsSerializer, UniversitiesSerializer, CostFundingSerializer,\
-    ELearningSerializer, ServiceSerializer, RequirementSerializer
-from .models import AllPrograms, CourseDetails, Universities, CostFunding, ELearning, Service, Requirement
+from .serializers import UniversitiesSerializer, OverviewSerializer, CourseDetailsSerializer, CostFundingSerializer, \
+    RequirementSerializer, ServiceSerializer, OnlineProgramSerializer
+from .models import Universities, Overview, CourseDetails, CostFunding, Requirement, Service, OnlineProgram
 
 
 
-
-
-class UniversitiesList(generics.ListCreateAPIView):
+class AboutInstitutionList(generics.ListCreateAPIView):
 
     """
     List all programs, or create a new program
@@ -18,7 +16,7 @@ class UniversitiesList(generics.ListCreateAPIView):
     serializer_class = UniversitiesSerializer
 
 
-class UniversitiesDetailsList(generics.RetrieveUpdateDestroyAPIView):
+class AboutInstitutionDetailsList(generics.RetrieveUpdateDestroyAPIView):
     """
     List all course details per program
     """
@@ -26,21 +24,21 @@ class UniversitiesDetailsList(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = UniversitiesSerializer
 
 
-class AllProgramsList(generics.ListCreateAPIView):
+class OverviewList(generics.ListCreateAPIView):
 
     """
     List all programs, or create a new program
     """
-    queryset = AllPrograms.objects.all()
-    serializer_class = AllProgramsSerializer
+    queryset = Overview.objects.all()
+    serializer_class = OverviewSerializer
 
 
-class AllProgramsDetailsList(generics.RetrieveUpdateDestroyAPIView):
+class OverviewDetailsList(generics.RetrieveUpdateDestroyAPIView):
     """
     List all course details per program
     """
-    queryset = AllPrograms.objects.all()
-    serializer_class = AllProgramsSerializer
+    queryset = Overview.objects.all()
+    serializer_class = OverviewSerializer
 
 
 
@@ -78,21 +76,21 @@ class CostFundingDetailedList(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = CostFundingSerializer
 
 
-class ELearningList(generics.ListCreateAPIView):
+class OnlineProgramList(generics.ListCreateAPIView):
 
     """
     List all programs, or create a new program
     """
-    queryset = ELearning.objects.all()
-    serializer_class = ELearningSerializer
+    queryset = OnlineProgram.objects.all()
+    serializer_class = OnlineProgramSerializer
 
 
-class ELearningDetailedList(generics.RetrieveUpdateDestroyAPIView):
+class OnlineProgramDetailedList(generics.RetrieveUpdateDestroyAPIView):
     """
     List all course details per program
     """
-    queryset = ELearning.objects.all()
-    serializer_class = ELearningSerializer
+    queryset = OnlineProgram.objects.all()
+    serializer_class = OnlineProgramSerializer
 
 
 class ServiceList(generics.ListCreateAPIView):

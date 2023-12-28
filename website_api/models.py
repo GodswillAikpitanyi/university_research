@@ -1,22 +1,9 @@
 from django.db import models
+from phonenumber_field.modelfields import PhoneNumberField
 
-SEMESTER_CHOICES = (
-    ("1", "1"),
-    ("2", "2"),
-    ("3", "3"),
-    ("4", "4"),
-    ("5", "5"),
-    ("6", "6"),
-    ("7", "7"),
-    ("8", "8"),
-)
 
-LANGUAGES_CHOICE = (
-    ("ENGLISH", "ENGLISH"),
-    ("GERMAN", "GERMAN"),
-)
 
-LANGUAGE_AVAILABILITY = (
+AVAILABILITY_CHOICES = (
     ("YES", "YES"),
     ("NO", "NO"),
 )
@@ -26,12 +13,18 @@ GENDER = (
     ("FEMALE", "FEMALE")
 )
 
+USER_ROLES = (
+    ("NORMAL", "NORMAL"),
+    ("POSTER", "POSTER")
+)
+
 
 class Users(models.Model):
     user_id = models.BigAutoField(primary_key=True)
-    name = models.CharField(max_length=500)
+    first_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
     username = models.CharField(max_length=100, unique=True)
-    user_type = models.CharField(max_length=20)
+    user_role = models.CharField(max_length=50, choices=USER_ROLES, default='NORMAL')
     email = models.EmailField(max_length=50, unique=True)
     password = models.CharField(max_length=100)
     gender = models.CharField(max_length=10, choices=GENDER, default='MALE')
@@ -44,246 +37,165 @@ class Users(models.Model):
 class Universities(models.Model):
     # This table that registered all university programs details.
     uni_id = models.BigAutoField(primary_key=True)
-    user_id = models.OneToOneField(Users, related_name="universities", on_delete=models.CASCADE, null=True)
-    university_name = models.CharField(max_length=500, unique=True)
-    university_address = models.CharField(max_length=2000)
-    university_website = models.CharField(max_length=500)
-    facebook_handle = models.CharField(max_length=1000)
-    histagram_handle = models.CharField(max_length=1000)
-    whatsapp_handle = models.CharField(max_length=1000)
-    linkedin_handle = models.CharField(max_length=1000)
+    user_id = models.OneToOneField(Users, related_name="universities", on_delete=models.CASCADE)
+    institution_name = models.CharField(max_length=500, unique=True)
+    institution_address = models.CharField(max_length=2000)
+    institution_location = models.CharField(max_length=200)
+    about_university = models.CharField(max_length=5000)
+    state = models.CharField(max_length=50, null=True)
+
+    def upload_logo(self, filename):
+        path = 'images/institution_logo/{}' + filename
+        return path
+    institution_logo = models.ImageField(upload_to=upload_logo)
 
     def upload_photo(self, filename):
-        path = 'images/university_photo/{}' + filename
+        path = 'images/institution_photo/{}' + filename
         return path
-
-    university_image = models.ImageField(upload_to=upload_photo)
+    institution_image = models.ImageField(upload_to=upload_photo, null=True)
 
     def __str__(self):
-        return f"{self.university_name}"
+        return f"{self.uni_id} {self.institution_name}"
 
 
 class AllPrograms(models.Model):
     # This table that registered all university programs details.
     program_id = models.BigAutoField(primary_key=True)
     uni_id = models.ForeignKey(Universities, related_name="all_programs", on_delete=models.CASCADE)  # Foreign key referencing University table
-    program_type = models.CharField(max_length=200)
-    degree_type = models.CharField(max_length=200)
+    coordinator_name = models.CharField(max_length=1000)
+    coordinator_address = models.CharField(max_length=2000)
+    coordinator_phone = PhoneNumberField(null=False, blank=False)
+    coordinator_email = models.EmailField(max_length=100, unique=True)
+    program_title = models.CharField(max_length=200)
+    program_abbreviation = models.CharField(max_length=200, null=True)
+    degree_abbreviation = models.CharField(max_length=50)
+    program_website = models.CharField(max_length=1000, null=True)
+    instagram_url = models.CharField(max_length=1000, null=True)
+    linkedin_url = models.CharField(max_length=1000, null=True)
+    facebook_url = models.CharField(max_length=1000, null=True)
+    twitter_url = models.CharField(max_length=1000, null=True)
+    youtube_url = models.CharField(max_length=1000, null=True)
+
+
+    def __str__(self):
+        return f"{self.uni_id} {self.program_title}"
+
+
+class Overview(models.Model):
+    # This table that registered all university programs details.
+    overview_id = models.BigAutoField(primary_key=True)
+    program_id = models.OneToOneField(AllPrograms, related_name="overview", on_delete=models.CASCADE)  # Foreign key referencing University table
+    degree = models.CharField(max_length=500)
     field_of_study = models.CharField(max_length=200)
-    course_name = models.CharField(max_length=200)
-    start_date = models.DateField()
-    duration = models.CharField(max_length=200, choices=SEMESTER_CHOICES, default='1')
-    tuition = models.CharField(max_length=200)
-    language = models.CharField(max_length=50, choices=LANGUAGES_CHOICE, default='ENGLISH')
     mode_of_study = models.CharField(max_length=200)
-    institution_type = models.CharField(max_length=200)
+    languages = models.CharField(max_length=500, null=True)
+    start_date = models.DateField()
+    tuition_fee = models.CharField(max_length=1000, choices=AVAILABILITY_CHOICES, default='YES')
+    school_fee = models.CharField(max_length=1000, choices=AVAILABILITY_CHOICES, default='YES')
+    thematic_area = models.CharField(max_length=1000)
+    program_type = models.CharField(max_length=1000)
+    teaching_language = models.CharField(max_length=1000)
+    program_duration = models.CharField(max_length=1000)
+    application_deadline = models.DateField()
+    combine_master_phd = models.CharField(max_length=1000, null=True, choices=AVAILABILITY_CHOICES, default='YES')
+    joint_degree_program = models.CharField(max_length=1000, null=True, choices=AVAILABILITY_CHOICES, default='YES')
 
     def __str__(self):
-        return f"{self.uni_id} {self.program_type} {self.course_name}"
-
-    class Meta:
-        ordering = ['uni_id']
-
-
-class Service(models.Model):
-    service_id = models.BigAutoField(primary_key=True)
-    program_id = models.OneToOneField(AllPrograms, related_name="service", on_delete=models.CASCADE)
-    part_time_employment = models.CharField(max_length=3000)
-    accommodation = models.CharField(max_length=3000)
-    general_intl_student_support = models.CharField(max_length=3000)
-
-    def __str__(self):
-        return f"{self.service_id} {self.accommodation}"
-
-
-class Support(models.Model):
-    support_id = models.BigAutoField(primary_key=True)
-    service_id = models.OneToOneField(Service, related_name="support", on_delete=models.CASCADE)
-    support = models.CharField(max_length=1000)
-
-    def __str__(self):
-        return f"{self.support_id} {self.support}"
-
-
-class Requirement(models.Model):
-    req_id = models.BigAutoField(primary_key=True)
-    program_id = models.OneToOneField(AllPrograms, related_name="requirement", on_delete=models.CASCADE)
-
-    def __str__(self):
-        return f"{self.req_id}"
-
-
-class AcademicRequirement(models.Model):
-    acad_req_id = models.BigAutoField(primary_key=True)
-    req_id = models.ForeignKey(Requirement, related_name="academic_requirement", on_delete=models.CASCADE)
-    admission_requirement = models.CharField(max_length=2000)
-
-    def __str__(self):
-        return f"{self.acad_req_id} {self.admission_requirement}"
-
-
-class LanguageRequirement(models.Model):
-    lang_req_id = models.BigAutoField(primary_key=True)
-    req_id = models.ForeignKey(Requirement, related_name="language_requirement", on_delete=models.CASCADE)
-    language_requirement = models.CharField(max_length=2000)
-
-    def __str__(self):
-        return f"{self.lang_req_id} {self.language_requirement}"
-
-
-class ApplicationDeadline(models.Model):
-    app_d_id = models.BigAutoField(primary_key=True)
-    req_id = models.ForeignKey(Requirement, related_name="application_deadline", on_delete=models.CASCADE)
-    application_deadline = models.CharField(max_length=2000)
-
-    def __str__(self):
-        return f"{self.app_d_id} {self.application_deadline}"
-
-
-class ELearning(models.Model):
-    e_learn_id = models.BigAutoField(primary_key=True)
-    program_id = models.OneToOneField(AllPrograms, related_name="e_learning", on_delete=models.CASCADE)
-    online_course = models.CharField(max_length=10)
-    e_learning_description = models.CharField(max_length=2000)
-    e_learning_participation = models.CharField(max_length=10)
-    ects_availability = models.CharField(max_length=10)
-    sign_up_availability = models.CharField(max_length=10)
-
-    def __str__(self):
-        return f"{self.e_learn_id} {self.e_learning_description}"
-
-
-class LearningModule(models.Model):
-    learn_mod_id = models.BigAutoField(primary_key=True)
-    e_learn_id = models.ForeignKey(ELearning, related_name='learning_module', on_delete=models.CASCADE)
-    learning_module = models.CharField(max_length=2000)
-
-    def __str__(self):
-        return f"{self.learn_mod_id} {self.learning_module}"
-
-
-class CostFunding(models.Model):
-    cost_f_id = models.BigAutoField(primary_key=True)
-    program_id = models.OneToOneField(AllPrograms, related_name="cost_funding", on_delete=models.CASCADE)
-    tuition_fee = models.CharField(max_length=1000)
-    semester_contribution = models.DecimalField(max_digits=6, decimal_places=2)
-    cost_of_living = models.CharField(max_length=2000)
-    funding_opportunities = models.CharField(max_length=2000)
-    funding_description = models.CharField(max_length=2000)
-
-    def __str__(self):
-        return f"{self.cost_f_id} {self.cost_of_living}"
+        return f"{self.program_id} {self.degree}"
 
 
 class CourseDetails(models.Model):
     # This is the table that show details information of individual course
     course_details_id = models.BigAutoField(primary_key=True)
-    internship = models.CharField(max_length=5000, null=True)  # Hashed and salted
-    summer = models.CharField(max_length=5000, null=True)
-    winter = models.CharField(max_length=5000, null=True)
-    english_language = models.CharField(max_length=10, choices=LANGUAGE_AVAILABILITY, default='YES')
-    german_language = models.CharField(max_length=10, choices=LANGUAGE_AVAILABILITY, default='YES')
-    program = models.OneToOneField(AllPrograms, related_name="course_details", on_delete=models.CASCADE)
+    program_id = models.OneToOneField(AllPrograms, related_name="course_details", on_delete=models.CASCADE)
+    course_organization = models.CharField(max_length=5000)
+    integrated_language = models.CharField(max_length=5000, null=True, choices=AVAILABILITY_CHOICES, default='YES')
+    course_specialization = models.CharField(max_length=5000)
+    diploma_supplement = models.CharField(max_length=5000, null=True, choices=AVAILABILITY_CHOICES, default='YES')
+    integrated_internship = models.CharField(max_length=5000, null=True, choices=AVAILABILITY_CHOICES, default='YES')
+    integrated_foreign_language = models.CharField(max_length=5000, null=True)
 
     def __str__(self):
-        return f"{self.course_details_id} {self.program} "
-
-    class Meta:
-        ordering = ['course_details_id']
+        return f"{self.course_details_id} {self.course_organization}"
 
 
 class AssessmentType(models.Model):
-    # This tables contains details information about winter program
-    ass_id = models.BigAutoField(primary_key=True)
-    ass_type = models.CharField(max_length=2000)
-    course_details = models.ForeignKey(CourseDetails, related_name='assessment_type', null=True,
-                                       on_delete=models.CASCADE)
+    ass_type_id = models.BigAutoField(primary_key=True)
+    course_details_id = models.ForeignKey(CourseDetails, related_name="assessment_type", on_delete=models.CASCADE)
+    assessment_type = models.CharField(max_length=500)
 
     def __str__(self):
-        return f"{self.ass_id} {self.ass_type}"
-
-
-class Supplementary(models.Model):
-    # This tables contains details information about winter program
-    sup_id = models.BigAutoField(primary_key=True)
-    supplementary = models.CharField(max_length=2000)
-    course_details = models.ForeignKey(CourseDetails, related_name='supplementary', null=True, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return f"{self.sup_id} {self.supplementary}"
+        return f"{self.ass_type_id} {self.assessment_type}"
 
 
 class InternationalElement(models.Model):
-    # This tables contains details information about winter program
-    int_id = models.BigAutoField(primary_key=True)
-    int_element = models.CharField(max_length=2000)
-    course_details = models.ForeignKey(CourseDetails, related_name='international_element', null=True,
-                                       on_delete=models.CASCADE)
+    intl_element_id = models.BigAutoField(primary_key=True)
+    course_details_id = models.ForeignKey(CourseDetails, related_name="international_element", on_delete=models.CASCADE)
+    international_element = models.CharField(max_length=500)
 
     def __str__(self):
-        return f"{self.int_id} {self.int_element}"
+        return f"{self.intl_element_id} {self.international_element}"
 
 
-class Organization(models.Model):
-    # This is the table that show details information of individual course
-    org_id = models.BigAutoField(primary_key=True)
-    top_details = models.CharField(max_length=2000)
-    course_details = models.OneToOneField(CourseDetails, related_name='organization', null=True,
-                                          on_delete=models.CASCADE)
-
-    def __str__(self):
-        return f"{self.org_id} {self.course_details}"
-
-
-
-class SummerTopics(models.Model):
-    # This tables contains details information about winter program
-    sum_id = models.BigAutoField(primary_key=True)
-    summer_topics = models.CharField(max_length=5000)
-    organization = models.ForeignKey(Organization, related_name='summer_topics', null=True,
-                                     on_delete=models.CASCADE)
+class CostFunding(models.Model):
+    cost_f_id = models.BigAutoField(primary_key=True)
+    program_id = models.OneToOneField(AllPrograms, related_name="cost_funding", on_delete=models.CASCADE)
+    tuition_fee = models.DecimalField(max_digits=6, decimal_places=1)
+    school_fee = models.DecimalField(max_digits=6, decimal_places=1)
+    cost_of_living = models.CharField(max_length=2000)
+    funding_opportunities = models.CharField(max_length=2000)
+    funding_description = models.CharField(max_length=2000)
 
     def __str__(self):
-        return f" {self.sum_id} {self.summer_topics}"
+        return f"{self.cost_f_id} {self.tuition_fee}"
 
 
-class SummerOptionalTopics(models.Model):
-    # This tables contains details information about summer program
-    sum_opt_id = models.BigAutoField(primary_key=True)
-    summer_op_topics = models.CharField(max_length=5000)
-    organization = models.ForeignKey(Organization, related_name='summer_optional', null=True,
-                                     on_delete=models.CASCADE)
-
-    def __str__(self):
-        return f"{self.sum_opt_id} {self.summer_op_topics}"
-
-
-class WinterTopics(models.Model):
-    # This tables contains details information about winter program
-    winter_id = models.AutoField(primary_key=True)  # primary key
-    winter_topics = models.CharField(max_length=5000)
-    organization = models.ForeignKey(Organization, related_name='winter_topics', null=True,
-                                     on_delete=models.CASCADE)
+class Requirement(models.Model):
+    req_id = models.BigAutoField(primary_key=True)
+    program_id = models.OneToOneField(AllPrograms, related_name="requirement", on_delete=models.CASCADE)
+    academic_requirement = models.CharField(max_length=3000)
+    language_requirement = models.CharField(max_length=3000, null=True)
+    application_requirement = models.CharField(max_length=3000)
+    submit_application_to = models.CharField(max_length=3000, null=True)
 
     def __str__(self):
-        return f"{self.winter_id} {self.winter_topics}"
+        return f"{self.req_id} {self.academic_requirement}"
 
 
-class WinterOptionalTopics(models.Model):
-    # This tables contains details information about winter program
-    wint_opt_id = models.BigAutoField(primary_key=True)
-    winter_op_topics = models.CharField(max_length=5000)
-    organization = models.ForeignKey(Organization, related_name='winter_optional', null=True, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return f"{self.wint_opt_id} {self.winter_op_topics}"
-
-
-class ThirdSemester(models.Model):
-    # This tables contains details information about winter program
-    third_sem_id = models.BigAutoField(primary_key=True)
-    third_s_topics = models.CharField(max_length=200)
-    organization = models.ForeignKey(Organization, related_name='third_semester', null=True, on_delete=models.CASCADE)
+class Service(models.Model):
+    service_id = models.BigAutoField(primary_key=True)
+    program_id = models.OneToOneField(AllPrograms, related_name="service", on_delete=models.CASCADE)
+    accommodation = models.CharField(max_length=3000)
+    general_intl_student_support = models.CharField(max_length=3000)
+    part_time_employment = models.CharField(max_length=3000, null=True)
+    career_advisory_service = models.CharField(max_length=3000, null=True)
+    special_or_non_special_support = models.CharField(max_length=3000, null=True)
 
     def __str__(self):
-        return f"{self.third_sem_id} {self.third_s_topics}"
+        return f"{self.service_id} {self.general_intl_student_support}"
+
+
+class OnlineProgram(models.Model):
+    online_program_id = models.BigAutoField(primary_key=True)
+    program_id = models.OneToOneField(AllPrograms, related_name="online_program", on_delete=models.CASCADE)
+    online_adaptability = models.CharField(max_length=10)
+    pace_of_course = models.CharField(max_length=10)
+    attendance_phase_in_Nigeria = models.CharField(max_length=10)
+    type_of_online_learning = models.CharField(max_length=10)
+
+    def __str__(self):
+        return f"{self.online_program_id} {self.online_adaptability}"
+
+
+class OnlineLearning(models.Model):
+    online_learning_id = models.BigAutoField(primary_key=True)
+    course_details_id = models.ForeignKey(CourseDetails, related_name="online_learning", on_delete=models.CASCADE)
+    online_learning = models.CharField(max_length=500)
+
+    def __str__(self):
+        return f"{self.online_learning_id} {self.online_learning}"
+
+
+
+
+

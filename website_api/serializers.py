@@ -1,81 +1,107 @@
 from rest_framework import serializers
 
-from .models import (CourseDetails, Organization, Universities, AllPrograms, ELearning, Service, CostFunding,
-                     Requirement)
+from .models import (Users, Universities, AllPrograms, Overview, CourseDetails, AssessmentType, InternationalElement,
+                     CostFunding, Requirement, Service, OnlineProgram, OnlineLearning)
+
+
+class AllProgramsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AllPrograms
+        fields = ['program_id', 'uni_id', 'coordinator_name', 'coordinator_address', 'coordinator_phone',
+                  'coordinator_phone', 'coordinator_email', 'program_title', 'program_abbreviation',
+                  'degree_abbreviation', 'program_website', 'instagram_url', 'linkedin_url', 'facebook_url',
+                  'twitter_url', 'youtube_url']
+
+
+class OverviewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Overview
+        fields = ['overview_id', 'program_id', 'degree', 'field_of_study', 'mode_of_study', 'languages', 'start_date',
+                  'tuition_fee', 'school_fee', 'thematic_area', 'program_type', 'teaching_language', 'program_duration',
+                  'application_deadline', 'combine_master_phd', 'joint_degree_program']
+
+
+class AssessmentTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AssessmentType
+        fields = ['ass_type_id', 'course_details_id', 'assessment_type']
+
+
+
+class InternationalElementSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = InternationalElement
+        fields = ['intl_element_id', 'course_details_id', 'international_element']
+
+
+class CourseDetailsSerializer(serializers.ModelSerializer):
+    assessment = AssessmentTypeSerializer()
+    international_element = InternationalElementSerializer()
+
+    class Meta:
+        model = CourseDetails
+        fields = ['course_details_id', 'program_id', 'course_organization', 'integrated_language',
+                  'course_specialization', 'diploma_supplement', 'integrated_internship', 'integrated_foreign_language',
+                  'assessment', 'international_element']
+
 
 
 class UniversitiesSerializer(serializers.ModelSerializer):
+    program_details = AllProgramsSerializer()
+
     class Meta:
         model = Universities
-        fields = ('uni_id', 'user_id', 'university_name', 'university_image', 'university_address',
-                  'university_website', 'facebook_handle', 'histagram_handle', 'whatsapp_handle',
-                  'linkedin_handle')
+        fields = ['uni_id', 'user_id', 'institution_name', 'institution_address', 'institution_location',
+                  'about_university', 'state', 'institution_logo', 'institution_image', 'program_details']
 
 
-class ELearningSerializer(serializers.ModelSerializer):
-    learning_module = serializers.SlugRelatedField(many=True, read_only=True, slug_field='learning_module')
-
-    class Meta:
-        model = ELearning
-        fields = ('program_id', 'e_learning_description', 'e_learning_participation', 'ects_availability',
-                  'sign_up_availability', 'learning_module')
-
-
-class ServiceSerializer(serializers.ModelSerializer):
-    support = serializers.SlugRelatedField(read_only=True, slug_field='support')
-
-    class Meta:
-        model = Service
-        fields = ('program_id', 'part_time_employment', 'accommodation', 'general_intl_student_support', 'support')
 
 
 class CostFundingSerializer(serializers.ModelSerializer):
     class Meta:
         model = CostFunding
-        fields = ('program_id', 'tuition_fee', 'semester_contribution', 'cost_of_living',
-                  'funding_opportunities', 'funding_description')
+        fields = ['cost_f_id', 'program_id', 'tuition_fee', 'cost_of_living', 'funding_opportunities',
+                  'funding_description']
 
 
 class RequirementSerializer(serializers.ModelSerializer):
-    academic_requirement = serializers.SlugRelatedField(many=True, read_only=True, slug_field='academic_requirement')
-    language_requirement = serializers.SlugRelatedField(many=True, read_only=True, slug_field='language_requirement')
-    application_deadline = serializers.SlugRelatedField(many=True, read_only=True, slug_field='application_deadline')
 
     class Meta:
         model = Requirement
-        fields = ('program_id', 'academic_requirement', 'language_requirement', 'application_deadline')
+        fields = ['req_id', 'program_id', 'academic_requirement', 'language_requirement', 'application_requirement',
+                  'submit_application_to']
 
 
-class AllProgramsSerializer(serializers.ModelSerializer):
+class ServiceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Service
+        fields = ['service_id', 'program_id', 'accommodation', 'general_intl_student_support', 'part_time_employment',
+                  'career_advisory_service', 'special_or_non_special_support']
+
+
+class OnlineLearningSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OnlineLearning
+        fields = ['online_learning_id', 'course_details_id', 'online_learning']
+
+
+class OnlineProgramSerializer(serializers.ModelSerializer):
+    online_learning = OnlineLearningSerializer()
 
     class Meta:
-        model = AllPrograms
-        fields = ('program_id', 'uni_id', 'program_type', 'degree_type', 'field_of_study', 'course_name', 'start_date',
-                  'duration', 'tuition', 'language', 'mode_of_study', 'institution_type')
+        model = OnlineProgram
+        fields = ['online_program_id', 'program_id', 'online_adaptability', 'pace_of_course',
+                  'attendance_phase_in_Nigeria', 'type_of_online_learning', 'online_learning']
 
 
 
-class OrganizationSerializer(serializers.ModelSerializer):
-    summer_topics = serializers.SlugRelatedField(many=True, read_only=True, slug_field='summer_topics')
-    summer_optional = serializers.SlugRelatedField(many=True, read_only=True, slug_field='summer_op_topics')
-    winter_topics = serializers.SlugRelatedField(many=True, read_only=True, slug_field='winter_topics')
-    winter_optional = serializers.SlugRelatedField(many=True, read_only=True, slug_field='winter_op_topics')
-    third_semester = serializers.SlugRelatedField(many=True, read_only=True, slug_field='third_s_topics')
-
-    class Meta:
-        model = Organization
-        fields = ('course_details', 'top_details', 'summer_topics', 'summer_optional', 'winter_topics',
-                  'winter_optional', 'third_semester')
 
 
-class CourseDetailsSerializer(serializers.ModelSerializer):
-    organization = OrganizationSerializer()
-    assessment_type = serializers.SlugRelatedField(many=True, read_only=True, slug_field='ass_type')
-    supplementary = serializers.SlugRelatedField(many=True, read_only=True, slug_field='supplementary')
-    international_element = serializers.SlugRelatedField(many=True, read_only=True, slug_field='int_element')
 
-    class Meta:
-        model = CourseDetails
-        fields = ('program', 'organization', 'assessment_type', 'supplementary', 'international_element',
-                  'internship', 'english_language', 'german_language', 'summer', 'winter')
-
+    # def create(self, validated_data):
+    #     learning_module_datas = validated_data.pop('learning_module')
+    #     e_learning = ELearning.objects.create(**validated_data)
+    #     for learning_module_data in learning_module_datas:
+    #         LearningModule.objects.create(**learning_module_data, e_learning=e_learning)
+    #     return e_learning

@@ -5,16 +5,16 @@ from rest_framework.urlpatterns import format_suffix_patterns
 
 
 urlpatterns = [
-    path('universities/', views.UniversitiesList.as_view()),
-    path('universities/<int:pk>/', views.UniversitiesDetailsList.as_view()),
-    path('all_programs/', views.AllProgramsList.as_view()),
-    path('all_programs/<int:pk>/', views.AllProgramsDetailsList.as_view()),
+    path('about_institution/', views.AboutInstitutionList.as_view()),
+    path('about_institution/<int:pk>/', views.AboutInstitutionDetailsList.as_view()),
+    path('overview/', views.OverviewList.as_view()),
+    path('overview/<int:pk>/', views.OverviewDetailsList.as_view()),
     path('course_details/', views.CourseDetailsList.as_view()),
     path('course_details/<int:pk>/', views.CourseDetailsDetailedList.as_view()),
     path('cost_funding/', views.CostFundingList.as_view()),
     path('cost_funding/<int:pk>/', views.CostFundingDetailedList.as_view()),
-    path('e_learning/', views.ELearningList.as_view()),
-    path('e_learning/<int:pk>/', views.ELearningDetailedList.as_view()),
+    path('online_learning/', views.OnlineProgramList.as_view()),
+    path('online_learning/<int:pk>/', views.OnlineProgramDetailedList.as_view()),
     path('requirement/', views.RequirementList.as_view()),
     path('requirement/<int:pk>/', views.RequirementDetailedList.as_view()),
     path('service/', views.ServiceList.as_view()),
