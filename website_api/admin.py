@@ -1,6 +1,6 @@
 from django.contrib import admin
-from .models import (Users, Universities, AllPrograms, Overview, CourseDetails, AssessmentType, InternationalElement,
-                     CostFunding, Requirement, Service, OnlineProgram, OnlineLearning)
+from .models import (Users, Universities, Programs, Overview, CourseDetails, AssessmentType, InternationalElement,
+                     CostFunding, Requirement, Service, OnlineLearning, OnlineLearningElement)
 
-admin.site.register([Users, Universities, AllPrograms, Overview, CourseDetails, AssessmentType, InternationalElement,
-                     CostFunding, Requirement, Service, OnlineProgram, OnlineLearning])
+admin.site.register([Users, Universities, Programs, Overview, CourseDetails, AssessmentType, InternationalElement,
+                     CostFunding, Requirement, Service, OnlineLearning, OnlineLearningElement])

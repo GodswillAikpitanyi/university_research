@@ -58,7 +58,7 @@ class Universities(models.Model):
         return f"{self.uni_id} {self.institution_name}"
 
 
-class Programs(models.Model):
+class ProgramDetails(models.Model):
     # This table that registered all university programs details.
     program_id = models.BigAutoField(primary_key=True)
     uni_id = models.ForeignKey(Universities, related_name="program_details", on_delete=models.CASCADE)  # Foreign key referencing University table
@@ -84,7 +84,7 @@ class Programs(models.Model):
 class Overview(models.Model):
     # This table that registered all university programs details.
     overview_id = models.BigAutoField(primary_key=True)
-    program_id = models.OneToOneField(Programs, related_name="overview", on_delete=models.CASCADE)  # Foreign key referencing University table
+    program_id = models.OneToOneField(ProgramDetails, related_name="overview", on_delete=models.CASCADE)  # Foreign key referencing University table
     degree = models.CharField(max_length=500)
     field_of_study = models.CharField(max_length=200)
     mode_of_study = models.CharField(max_length=200)
@@ -104,10 +104,24 @@ class Overview(models.Model):
         return f"{self.program_id} {self.degree}"
 
 
+class CourseDetails(models.Model):
+    # This is the table that show details information of individual course
+    course_details_id = models.BigAutoField(primary_key=True)
+    program_id = models.OneToOneField(ProgramDetails, related_name="course_details", on_delete=models.CASCADE)
+    course_organization = models.CharField(max_length=5000)
+    integrated_language = models.CharField(max_length=5000, null=True, blank=True, choices=AVAILABILITY_CHOICES, default='YES')
+    course_specialization = models.CharField(max_length=5000)
+    diploma_supplement = models.CharField(max_length=5000, null=True, blank=True, choices=AVAILABILITY_CHOICES, default='YES')
+    integrated_internship = models.CharField(max_length=5000, null=True, blank=True, choices=AVAILABILITY_CHOICES, default='YES')
+    integrated_foreign_language = models.CharField(max_length=5000, null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.course_details_id} {self.course_organization}"
 
 
 class AssessmentType(models.Model):
     ass_type_id = models.BigAutoField(primary_key=True)
+    course_details_id = models.ForeignKey(CourseDetails, related_name="assessment_type", on_delete=models.CASCADE)
     assessment_type = models.CharField(max_length=500)
 
     def __str__(self):
@@ -116,32 +130,16 @@ class AssessmentType(models.Model):
 
 class InternationalElement(models.Model):
     intl_element_id = models.BigAutoField(primary_key=True)
+    course_details_id = models.ForeignKey(CourseDetails, related_name="international_element", on_delete=models.CASCADE)
     international_element = models.CharField(max_length=500)
 
     def __str__(self):
         return f"{self.intl_element_id} {self.international_element}"
 
 
-class CourseDetails(models.Model):
-    # This is the table that show details information of individual course
-    course_details_id = models.BigAutoField(primary_key=True)
-    program_id = models.OneToOneField(Programs, related_name="course_details", on_delete=models.CASCADE)
-    course_organization = models.CharField(max_length=5000)
-    integrated_language = models.CharField(max_length=5000, null=True, blank=True, choices=AVAILABILITY_CHOICES, default='YES')
-    course_specialization = models.CharField(max_length=5000)
-    diploma_supplement = models.CharField(max_length=5000, null=True, blank=True, choices=AVAILABILITY_CHOICES, default='YES')
-    integrated_internship = models.CharField(max_length=5000, null=True, blank=True, choices=AVAILABILITY_CHOICES, default='YES')
-    integrated_foreign_language = models.CharField(max_length=5000, null=True, blank=True)
-    assessment_type = models.ManyToManyField(AssessmentType, related_name='course_details')
-    international_element = models.ManyToManyField(InternationalElement, related_name='course_details')
-
-    def __str__(self):
-        return f"{self.course_details_id} {self.course_organization}"
-
-
 class CostFunding(models.Model):
     cost_f_id = models.BigAutoField(primary_key=True)
-    program_id = models.OneToOneField(Programs, related_name="cost_funding", on_delete=models.CASCADE)
+    program_id = models.OneToOneField(ProgramDetails, related_name="cost_funding", on_delete=models.CASCADE)
     tuition_fee = models.DecimalField(max_digits=6, decimal_places=1)
     school_fee = models.DecimalField(max_digits=6, decimal_places=1)
     cost_of_living = models.CharField(max_length=2000)
@@ -154,7 +152,7 @@ class CostFunding(models.Model):
 
 class Requirement(models.Model):
     req_id = models.BigAutoField(primary_key=True)
-    program_id = models.OneToOneField(Programs, related_name="requirement", on_delete=models.CASCADE)
+    program_id = models.OneToOneField(ProgramDetails, related_name="requirement", on_delete=models.CASCADE)
     academic_requirement = models.CharField(max_length=3000)
     language_requirement = models.CharField(max_length=3000, null=True, blank=True)
     application_requirement = models.CharField(max_length=3000)
@@ -166,7 +164,7 @@ class Requirement(models.Model):
 
 class Service(models.Model):
     service_id = models.BigAutoField(primary_key=True)
-    program_id = models.OneToOneField(Programs, related_name="service", on_delete=models.CASCADE)
+    program_id = models.OneToOneField(ProgramDetails, related_name="service", on_delete=models.CASCADE)
     accommodation = models.CharField(max_length=3000)
     general_intl_student_support = models.CharField(max_length=3000)
     part_time_employment = models.CharField(max_length=3000, null=True, blank=True)
@@ -177,26 +175,133 @@ class Service(models.Model):
         return f"{self.service_id} {self.general_intl_student_support}"
 
 
-class OnlineLearningElement(models.Model):
-    online_learning_id = models.BigAutoField(primary_key=True)
-    online_learning_element = models.CharField(max_length=500, null=True, blank=True)
-
-    def __str__(self):
-        return f"{self.online_learning_id} {self.online_learning}"
-
-
-class OnlineLearning(models.Model):
+class OnlineProgram(models.Model):
     online_program_id = models.BigAutoField(primary_key=True)
-    program_id = models.OneToOneField(Programs, related_name="online_learning", on_delete=models.CASCADE,
+    program_id = models.OneToOneField(ProgramDetails, related_name="online_program", on_delete=models.CASCADE,
                                       null=True, blank=True)
     online_adaptability = models.CharField(max_length=100, null=True, blank=True)
     pace_of_course = models.CharField(max_length=100, null=True, blank=True)
     attendance_phase_in_Nigeria = models.CharField(max_length=100, null=True, blank=True)
     type_of_online_learning = models.CharField(max_length=100, null=True, blank=True)
-    online_learning_element = models.ManyToManyField(OnlineLearningElement, related_name="online_learning")
 
     def __str__(self):
         return f"{self.online_program_id} {self.online_adaptability}"
+
+
+class OnlineLearning(models.Model):
+    online_learning_id = models.BigAutoField(primary_key=True)
+    online_program_id = models.ForeignKey(OnlineProgram, related_name="online_learning", on_delete=models.CASCADE)
+    online_learning = models.CharField(max_length=500, null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.online_learning_id} {self.online_learning}"
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+from rest_framework import serializers
+
+from .models import (Users, Universities, ProgramDetails, Overview, CourseDetails, AssessmentType, InternationalElement,
+                     CostFunding, Requirement, Service, OnlineProgram, OnlineLearning)
+
+
+class ProgramDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProgramDetails
+        fields = ('program_id', 'uni_id', 'coordinator_name', 'coordinator_address', 'coordinator_phone',
+                  'coordinator_phone', 'coordinator_email', 'program_title', 'program_abbreviation',
+                  'degree_abbreviation', 'program_website', 'instagram_url', 'linkedin_url', 'facebook_url',
+                  'twitter_url', 'youtube_url')
+
+
+
+class UniversitiesSerializer(serializers.ModelSerializer):
+    program_details = ProgramDetailSerializer(many=True)
+
+    class Meta:
+        model = Universities
+        fields = ['uni_id', 'user_id', 'institution_name', 'institution_address', 'institution_location',
+                  'about_university', 'state', 'institution_logo', 'institution_image', 'program_details']
+
+    def create(self, validated_data):
+        program_details_data = validated_data.pop('program_details')
+        program_details = ProgramDetails.objects.create(**program_details_data)
+        universities = Universities.objects.create(program_details=program_details)
+        return universities
+
+
+class OverviewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Overview
+        fields = ['overview_id', 'program_id', 'degree', 'field_of_study', 'mode_of_study', 'languages', 'start_date',
+                  'tuition_fee', 'school_fee', 'thematic_area', 'program_type', 'teaching_language', 'program_duration',
+                  'application_deadline', 'combine_master_phd', 'joint_degree_program']
+
+
+class AssessmentTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AssessmentType
+        fields = ['ass_type_id', 'course_details_id', 'assessment_type']
+
+
+
+class InternationalElementSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = InternationalElement
+        fields = ['intl_element_id', 'course_details_id', 'international_element']
+
+
+class CourseDetailsSerializer(serializers.ModelSerializer):
+    assessment_type = AssessmentTypeSerializer(many=True)
+    international_element = InternationalElementSerializer(many=True)
+
+    class Meta:
+        model = CourseDetails
+        fields = ['course_details_id', 'program_id', 'course_organization', 'integrated_language',
+                  'course_specialization', 'diploma_supplement', 'integrated_internship', 'integrated_foreign_language',
+                  'assessment_type', 'international_element']
+
+
+class CostFundingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CostFunding
+        fields = ['cost_f_id', 'program_id', 'tuition_fee', 'cost_of_living', 'funding_opportunities',
+                  'funding_description']
+
+
+class RequirementSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Requirement
+        fields = ['req_id', 'program_id', 'academic_requirement', 'language_requirement', 'application_requirement',
+                  'submit_application_to']
+
+
+class ServiceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Service
+        fields = ['service_id', 'program_id', 'accommodation', 'general_intl_student_support', 'part_time_employment',
+                  'career_advisory_service', 'special_or_non_special_support']
+
+
+class OnlineLearningSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OnlineLearning
+        fields = ['online_learning_id', 'online_program_id', 'online_learning']
+
+
+class OnlineProgramSerializer(serializers.ModelSerializer):
+    online_learning = OnlineLearningSerializer(many=True)
+
+    class Meta:
+        model = OnlineProgram
+        fields = ['online_program_id', 'program_id', 'online_adaptability', 'pace_of_course',
+                  'attendance_phase_in_Nigeria', 'type_of_online_learning', 'online_learning']
+
+
 
 
 

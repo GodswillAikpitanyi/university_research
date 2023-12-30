@@ -1,24 +1,25 @@
 from rest_framework import serializers
 
-from .models import (Users, Universities, AllPrograms, Overview, CourseDetails, AssessmentType, InternationalElement,
-                     CostFunding, Requirement, Service, OnlineProgram, OnlineLearning)
+from .models import (Users, Universities, Programs, Overview, CourseDetails, AssessmentType, InternationalElement,
+                     CostFunding, Requirement, Service, OnlineLearning, OnlineLearningElement)
 
 
-class AllProgramsSerializer(serializers.ModelSerializer):
+class UniversitiesSerializer(serializers.ModelSerializer):
+
     class Meta:
-        model = AllPrograms
+        model = Universities
+        fields = ['uni_id', 'user_id', 'institution_name', 'institution_address', 'institution_location',
+                  'about_university', 'state', 'institution_logo', 'institution_image']
+
+
+class ProgramsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Programs
         fields = ('program_id', 'uni_id', 'coordinator_name', 'coordinator_address', 'coordinator_phone',
                   'coordinator_phone', 'coordinator_email', 'program_title', 'program_abbreviation',
                   'degree_abbreviation', 'program_website', 'instagram_url', 'linkedin_url', 'facebook_url',
                   'twitter_url', 'youtube_url')
 
-class UniversitiesSerializer(serializers.ModelSerializer):
-    all_programs = AllProgramsSerializer()
-
-    class Meta:
-        model = Universities
-        fields = ['uni_id', 'user_id', 'institution_name', 'institution_address', 'institution_location',
-                  'about_university', 'state', 'institution_logo', 'institution_image', 'all_programs']
 
 
 class OverviewSerializer(serializers.ModelSerializer):
@@ -44,20 +45,14 @@ class InternationalElementSerializer(serializers.ModelSerializer):
 
 
 class CourseDetailsSerializer(serializers.ModelSerializer):
-    assessment = AssessmentTypeSerializer()
-    international_element = InternationalElementSerializer()
+    assessment_type = AssessmentTypeSerializer(many=True)
+    international_element = InternationalElementSerializer(many=True)
 
     class Meta:
         model = CourseDetails
         fields = ['course_details_id', 'program_id', 'course_organization', 'integrated_language',
                   'course_specialization', 'diploma_supplement', 'integrated_internship', 'integrated_foreign_language',
-                  'assessment', 'international_element']
-
-
-
-
-
-
+                  'assessment_type', 'international_element']
 
 class CostFundingSerializer(serializers.ModelSerializer):
     class Meta:
@@ -81,28 +76,27 @@ class ServiceSerializer(serializers.ModelSerializer):
                   'career_advisory_service', 'special_or_non_special_support']
 
 
+class OnlineLearningElementSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OnlineLearningElement
+        fields = ['online_learning_id', 'online_program_id', 'online_learning_element']
+
+
 class OnlineLearningSerializer(serializers.ModelSerializer):
+    online_learning_element = OnlineLearningElementSerializer(many=True)
+
     class Meta:
         model = OnlineLearning
-        fields = ['online_learning_id', 'course_details_id', 'online_learning']
-
-
-class OnlineProgramSerializer(serializers.ModelSerializer):
-    online_learning = OnlineLearningSerializer()
-
-    class Meta:
-        model = OnlineProgram
         fields = ['online_program_id', 'program_id', 'online_adaptability', 'pace_of_course',
-                  'attendance_phase_in_Nigeria', 'type_of_online_learning', 'online_learning']
+                  'attendance_phase_in_Nigeria', 'type_of_online_learning', 'online_learning_element']
+
+    def create(self, validated_data):
+        online_learning_element_data = validated_data.pop('program_details')
+        online_learning_element = OnlineLearning.objects.create(**online_learning_element_data)
+        online_learning = OnlineLearning.objects.create(online_learning_element=online_learning_element)
+        return online_learning
 
 
 
 
 
-
-    # def create(self, validated_data):
-    #     learning_module_datas = validated_data.pop('learning_module')
-    #     e_learning = ELearning.objects.create(**validated_data)
-    #     for learning_module_data in learning_module_datas:
-    #         LearningModule.objects.create(**learning_module_data, e_learning=e_learning)
-    #     return e_learning

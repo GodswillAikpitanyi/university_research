@@ -2,12 +2,12 @@
 from rest_framework import generics
 
 from .serializers import UniversitiesSerializer, OverviewSerializer, CourseDetailsSerializer, CostFundingSerializer, \
-    RequirementSerializer, ServiceSerializer, OnlineProgramSerializer
-from .models import Universities, Overview, CourseDetails, CostFunding, Requirement, Service, OnlineProgram
+    RequirementSerializer, ServiceSerializer, OnlineLearningSerializer, ProgramsSerializer
+from .models import Universities, Overview, CourseDetails, CostFunding, Requirement, Service, OnlineLearning, Programs
 
 
 
-class AboutInstitutionList(generics.ListCreateAPIView):
+class UniversitiesList(generics.ListCreateAPIView):
 
     """
     List all programs, or create a new program
@@ -16,12 +16,30 @@ class AboutInstitutionList(generics.ListCreateAPIView):
     serializer_class = UniversitiesSerializer
 
 
-class AboutInstitutionDetailsList(generics.RetrieveUpdateDestroyAPIView):
+class UniversitiesDetailsList(generics.RetrieveUpdateDestroyAPIView):
     """
     List all course details per program
     """
     queryset = Universities.objects.all()
     serializer_class = UniversitiesSerializer
+
+
+
+class ProgramsList(generics.ListCreateAPIView):
+
+    """
+    List all programs, or create a new program
+    """
+    queryset = Programs.objects.all()
+    serializer_class = ProgramsSerializer
+
+
+class ProgramsDetailsList(generics.RetrieveUpdateDestroyAPIView):
+    """
+    List all course details per program
+    """
+    queryset = Programs.objects.all()
+    serializer_class = ProgramsSerializer
 
 
 class OverviewList(generics.ListCreateAPIView):
@@ -81,16 +99,16 @@ class OnlineProgramList(generics.ListCreateAPIView):
     """
     List all programs, or create a new program
     """
-    queryset = OnlineProgram.objects.all()
-    serializer_class = OnlineProgramSerializer
+    queryset = OnlineLearning.objects.all()
+    serializer_class = OnlineLearningSerializer
 
 
 class OnlineProgramDetailedList(generics.RetrieveUpdateDestroyAPIView):
     """
     List all course details per program
     """
-    queryset = OnlineProgram.objects.all()
-    serializer_class = OnlineProgramSerializer
+    queryset = OnlineLearning.objects.all()
+    serializer_class = OnlineLearningSerializer
 
 
 class ServiceList(generics.ListCreateAPIView):
