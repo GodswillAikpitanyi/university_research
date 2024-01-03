@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from .models import (Users, Universities, Programs, Overview, CourseDetails, AssessmentType, InternationalElement,
-                     CostFunding, Requirement, Service, OnlineLearning, OnlineLearningElement)
+                     CostFunding, Requirement, Service, OnlineLearning, LearningElement)
 
 
 class UniversitiesSerializer(serializers.ModelSerializer):
@@ -76,14 +76,14 @@ class ServiceSerializer(serializers.ModelSerializer):
                   'career_advisory_service', 'special_or_non_special_support']
 
 
-class OnlineLearningElementSerializer(serializers.ModelSerializer):
+class LearningElementSerializer(serializers.ModelSerializer):
     class Meta:
-        model = OnlineLearningElement
-        fields = ['online_learning_id', 'online_program_id', 'online_learning_element']
+        model = LearningElement
+        fields = ['online_learning_id', 'learning_elements']
 
 
 class OnlineLearningSerializer(serializers.ModelSerializer):
-    online_learning_element = OnlineLearningElementSerializer(many=True)
+    learning_elements = LearningElementSerializer(many=True)
 
     class Meta:
         model = OnlineLearning
@@ -91,12 +91,26 @@ class OnlineLearningSerializer(serializers.ModelSerializer):
                   'attendance_phase_in_Nigeria', 'type_of_online_learning', 'online_learning_element']
 
     def create(self, validated_data):
-        online_learning_element_data = validated_data.pop('program_details')
-        online_learning_element = OnlineLearning.objects.create(**online_learning_element_data)
-        online_learning = OnlineLearning.objects.create(online_learning_element=online_learning_element)
+        learning_elements_datas = validated_data.pop('learning_elements')
+        online_learning = OnlineLearning.objects.create(**validated_data)
+        for learning_elements_data in learning_elements_datas:
+            online_learning.learning_elements.create(**learning_elements_data)
         return online_learning
 
-
+    def update(self, instance, validated_data):
+        learning_elements_datas = validated_data.pop('learning_elements')
+        instance.online_program_id = validated_data.get("online_program_id", instance.online_program_id)
+        instance.program_id = validated_data.get("program_id", instance.online_program_id)
+        instance.online_adaptability = validated_data.get("online_adaptability", instance.online_program_id)
+        instance.pace_of_course = validated_data.get("pace_of_course", instance.online_program_id)
+        instance.attendance_phase_in_nigeria = validated_data.get("attendance_phase_in_nigeria", instance.online_program_id)
+        instance.type_of_online_learning = validated_data.get("type_of_online_learning", instance.online_program_id)
+        instance.learning_elements.clear()
+        for learning_elements_data in learning_elements_datas:
+            learning_elements, created = LearningElement.objects.get_or_create(** learning_elements_data)
+            instance.learning_elements.add(learning_elements)
+            instance.save()
+        return instance
 
 
 

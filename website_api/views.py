@@ -94,7 +94,7 @@ class CostFundingDetailedList(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = CostFundingSerializer
 
 
-class OnlineProgramList(generics.ListCreateAPIView):
+class OnlineLearningList(generics.ListCreateAPIView):
 
     """
     List all programs, or create a new program
@@ -103,7 +103,7 @@ class OnlineProgramList(generics.ListCreateAPIView):
     serializer_class = OnlineLearningSerializer
 
 
-class OnlineProgramDetailedList(generics.RetrieveUpdateDestroyAPIView):
+class OnlineLearningDetailedList(generics.RetrieveUpdateDestroyAPIView):
     """
     List all course details per program
     """
