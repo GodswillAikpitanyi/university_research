@@ -179,10 +179,10 @@ class Service(models.Model):
 
 class LearningElement(models.Model):
     online_learning_id = models.BigAutoField(primary_key=True)
-    learning_element = models.CharField(max_length=500, null=True, blank=True)
+    learning_elements = models.CharField(max_length=500, null=True, blank=True)
 
     def __str__(self):
-        return f"{self.online_learning_id} {self.learning_element}"
+        return f"{self.online_learning_id} {self.learning_elements}"
 
 
 class OnlineLearning(models.Model):
@@ -193,7 +193,7 @@ class OnlineLearning(models.Model):
     pace_of_course = models.CharField(max_length=100, null=True, blank=True)
     attendance_phase_in_Nigeria = models.CharField(max_length=100, null=True, blank=True)
     type_of_online_learning = models.CharField(max_length=100, null=True, blank=True)
-    learning_element = models.ManyToManyField(LearningElement, related_name="online_learning")
+    learning_elements = models.ManyToManyField(LearningElement, related_name="online_learning")
 
     def __str__(self):
         return f"{self.online_program_id} {self.online_adaptability}"

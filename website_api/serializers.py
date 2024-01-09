@@ -33,7 +33,7 @@ class OverviewSerializer(serializers.ModelSerializer):
 class AssessmentTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = AssessmentType
-        fields = ['ass_type_id', 'course_details_id', 'assessment_type']
+        fields = ['ass_type_id', 'assessment_type']
 
 
 
@@ -41,7 +41,7 @@ class InternationalElementSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = InternationalElement
-        fields = ['intl_element_id', 'course_details_id', 'international_element']
+        fields = ['intl_element_id', 'international_element']
 
 
 class CourseDetailsSerializer(serializers.ModelSerializer):
@@ -53,6 +53,17 @@ class CourseDetailsSerializer(serializers.ModelSerializer):
         fields = ['course_details_id', 'program_id', 'course_organization', 'integrated_language',
                   'course_specialization', 'diploma_supplement', 'integrated_internship', 'integrated_foreign_language',
                   'assessment_type', 'international_element']
+
+    def create(self, validated_data):
+        assessment_type_data = validated_data.pop('assessment_type')
+        international_element_data = validated_data.pop('international_element')
+
+        def create(self, validated_data):
+            learning_elements_datas = validated_data.pop('learning_elements')
+            online_learning = OnlineLearning.objects.create(**validated_data)
+            for learning_elements_data in learning_elements_datas:
+                online_learning.learning_elements.create(**learning_elements_data)
+            return online_learning
 
 class CostFundingSerializer(serializers.ModelSerializer):
     class Meta:
@@ -88,7 +99,7 @@ class OnlineLearningSerializer(serializers.ModelSerializer):
     class Meta:
         model = OnlineLearning
         fields = ['online_program_id', 'program_id', 'online_adaptability', 'pace_of_course',
-                  'attendance_phase_in_Nigeria', 'type_of_online_learning', 'online_learning_element']
+                  'attendance_phase_in_Nigeria', 'type_of_online_learning', 'learning_elements']
 
     def create(self, validated_data):
         learning_elements_datas = validated_data.pop('learning_elements')
