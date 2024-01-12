@@ -55,15 +55,45 @@ class CourseDetailsSerializer(serializers.ModelSerializer):
                   'assessment_type', 'international_element']
 
     def create(self, validated_data):
-        assessment_type_data = validated_data.pop('assessment_type')
-        international_element_data = validated_data.pop('international_element')
+        assessment_type_datas = validated_data.pop('assessment_type')
+        international_element_datas = validated_data.pop('international_element')
+        course_details = CourseDetails.objects.create(**validated_data)
 
-        def create(self, validated_data):
-            learning_elements_datas = validated_data.pop('learning_elements')
-            online_learning = OnlineLearning.objects.create(**validated_data)
-            for learning_elements_data in learning_elements_datas:
-                online_learning.learning_elements.create(**learning_elements_data)
-            return online_learning
+        for assessment_type_data in assessment_type_datas:
+            course_details.assessment_type.create(**assessment_type_data)
+
+        for international_element_data in international_element_datas:
+            course_details.international_element.create(**international_element_data)
+
+        return course_details
+
+    def update(self, instance, validated_data):
+        assessment_type_datas = validated_data.pop('assessment_type')
+        international_element_datas = validated_data.pop('international_element')
+
+        instance.course_details_id = validated_data.get('course_details_id')
+        instance.program_id = validated_data.get('program_id')
+        instance.course_organization = validated_data.get('course_organization')
+        instance.integrated_language = validated_data.get('integrated_language')
+        instance.course_specialization = validated_data.get('course_specialization')
+        instance.diploma_supplement = validated_data.get('diploma_supplement')
+        instance.integrated_internship = validated_data.get('integrated_internship')
+        instance.integrated_foreign_language = validated_data.get('integrated_foreign_language')
+
+        instance.assessment_type.clear()
+        instance.international_element.clear()
+
+        for assessment_type_data in assessment_type_datas:
+            assessment_type, created = AssessmentType.objects.get_or_create(**assessment_type_data)
+            instance.assessment_type.add(assessment_type)
+
+        for international_element_data in international_element_datas:
+            international_element, created = InternationalElement.objects.get_or_create(**international_element_data)
+            instance.international_element.add(international_element)
+
+        instance.save()
+        return instance
+
 
 class CostFundingSerializer(serializers.ModelSerializer):
     class Meta:
@@ -122,6 +152,3 @@ class OnlineLearningSerializer(serializers.ModelSerializer):
             instance.learning_elements.add(learning_elements)
             instance.save()
         return instance
-
-
-

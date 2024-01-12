@@ -187,8 +187,7 @@ class LearningElement(models.Model):
 
 class OnlineLearning(models.Model):
     online_program_id = models.BigAutoField(primary_key=True)
-    program_id = models.OneToOneField(Programs, related_name="online_learning", on_delete=models.CASCADE,
-                                      null=True, blank=True)
+    program_id = models.OneToOneField(Programs, related_name="online_learning", on_delete=models.CASCADE)
     online_adaptability = models.CharField(max_length=100, null=True, blank=True)
     pace_of_course = models.CharField(max_length=100, null=True, blank=True)
     attendance_phase_in_Nigeria = models.CharField(max_length=100, null=True, blank=True)
