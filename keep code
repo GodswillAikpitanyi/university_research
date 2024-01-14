@@ -1,259 +1,3 @@
-from django.db import models
-from phonenumber_field.modelfields import PhoneNumberField
-
-
-
-AVAILABILITY_CHOICES = (
-    ("YES", "YES"),
-    ("NO", "NO"),
-)
-
-GENDER = (
-    ("MALE", "MALE"),
-    ("FEMALE", "FEMALE")
-)
-
-USER_ROLES = (
-    ("NORMAL", "NORMAL"),
-    ("POSTER", "POSTER")
-)
-
-
-class Users(models.Model):
-    user_id = models.BigAutoField(primary_key=True)
-    first_name = models.CharField(max_length=100)
-    last_name = models.CharField(max_length=100)
-    username = models.CharField(max_length=100, unique=True)
-    user_role = models.CharField(max_length=50, choices=USER_ROLES, default='NORMAL')
-    email = models.EmailField(max_length=50, unique=True)
-    password = models.CharField(max_length=100)
-    gender = models.CharField(max_length=10, choices=GENDER, default='MALE')
-    registration_date = models.DateField()
-
-    def __str__(self):
-        return f"{self.user_id} {self.username}"
-
-
-class Universities(models.Model):
-    # This table that registered all university programs details.
-    uni_id = models.BigAutoField(primary_key=True)
-    user_id = models.OneToOneField(Users, related_name="universities", on_delete=models.CASCADE)
-    institution_name = models.CharField(max_length=500, unique=True)
-    institution_address = models.CharField(max_length=2000)
-    institution_location = models.CharField(max_length=200)
-    about_university = models.CharField(max_length=5000)
-    state = models.CharField(max_length=50, null=True, blank=True)
-
-    def upload_logo(self, filename):
-        path = 'images/institution_logo/{}' + filename
-        return path
-    institution_logo = models.ImageField(upload_to=upload_logo)
-
-    def upload_photo(self, filename):
-        path = 'images/institution_photo/{}' + filename
-        return path
-    institution_image = models.ImageField(upload_to=upload_photo, null=True, blank=True)
-
-    def __str__(self):
-        return f"{self.uni_id} {self.institution_name}"
-
-
-class ProgramDetails(models.Model):
-    # This table that registered all university programs details.
-    program_id = models.BigAutoField(primary_key=True)
-    uni_id = models.ForeignKey(Universities, related_name="program_details", on_delete=models.CASCADE)  # Foreign key referencing University table
-    coordinator_name = models.CharField(max_length=1000)
-    coordinator_address = models.CharField(max_length=2000)
-    coordinator_phone = PhoneNumberField()
-    coordinator_email = models.EmailField(max_length=100, unique=True)
-    program_title = models.CharField(max_length=200)
-    program_abbreviation = models.CharField(max_length=200, null=True, blank=True)
-    degree_abbreviation = models.CharField(max_length=50)
-    program_website = models.CharField(max_length=1000, null=True, blank=True)
-    instagram_url = models.CharField(max_length=1000, null=True, blank=True)
-    linkedin_url = models.CharField(max_length=1000, null=True, blank=True)
-    facebook_url = models.CharField(max_length=1000, null=True, blank=True)
-    twitter_url = models.CharField(max_length=1000, null=True, blank=True)
-    youtube_url = models.CharField(max_length=1000, null=True, blank=True)
-
-
-    def __str__(self):
-        return f"{self.uni_id} {self.program_title}"
-
-
-class Overview(models.Model):
-    # This table that registered all university programs details.
-    overview_id = models.BigAutoField(primary_key=True)
-    program_id = models.OneToOneField(ProgramDetails, related_name="overview", on_delete=models.CASCADE)  # Foreign key referencing University table
-    degree = models.CharField(max_length=500)
-    field_of_study = models.CharField(max_length=200)
-    mode_of_study = models.CharField(max_length=200)
-    languages = models.CharField(max_length=500, null=True, blank=True)
-    start_date = models.DateField()
-    tuition_fee = models.CharField(max_length=1000, choices=AVAILABILITY_CHOICES, default='YES')
-    school_fee = models.CharField(max_length=1000, choices=AVAILABILITY_CHOICES, default='YES')
-    thematic_area = models.CharField(max_length=1000)
-    program_type = models.CharField(max_length=1000)
-    teaching_language = models.CharField(max_length=1000)
-    program_duration = models.CharField(max_length=1000)
-    application_deadline = models.DateField()
-    combine_master_phd = models.CharField(max_length=1000, null=True, blank=True, choices=AVAILABILITY_CHOICES, default='YES')
-    joint_degree_program = models.CharField(max_length=1000, null=True, blank=True, choices=AVAILABILITY_CHOICES, default='YES')
-
-    def __str__(self):
-        return f"{self.program_id} {self.degree}"
-
-
-class CourseDetails(models.Model):
-    # This is the table that show details information of individual course
-    course_details_id = models.BigAutoField(primary_key=True)
-    program_id = models.OneToOneField(ProgramDetails, related_name="course_details", on_delete=models.CASCADE)
-    course_organization = models.CharField(max_length=5000)
-    integrated_language = models.CharField(max_length=5000, null=True, blank=True, choices=AVAILABILITY_CHOICES, default='YES')
-    course_specialization = models.CharField(max_length=5000)
-    diploma_supplement = models.CharField(max_length=5000, null=True, blank=True, choices=AVAILABILITY_CHOICES, default='YES')
-    integrated_internship = models.CharField(max_length=5000, null=True, blank=True, choices=AVAILABILITY_CHOICES, default='YES')
-    integrated_foreign_language = models.CharField(max_length=5000, null=True, blank=True)
-
-    def __str__(self):
-        return f"{self.course_details_id} {self.course_organization}"
-
-
-class AssessmentType(models.Model):
-    ass_type_id = models.BigAutoField(primary_key=True)
-    course_details_id = models.ForeignKey(CourseDetails, related_name="assessment_type", on_delete=models.CASCADE)
-    assessment_type = models.CharField(max_length=500)
-
-    def __str__(self):
-        return f"{self.ass_type_id} {self.assessment_type}"
-
-
-class InternationalElement(models.Model):
-    intl_element_id = models.BigAutoField(primary_key=True)
-    course_details_id = models.ForeignKey(CourseDetails, related_name="international_element", on_delete=models.CASCADE)
-    international_element = models.CharField(max_length=500)
-
-    def __str__(self):
-        return f"{self.intl_element_id} {self.international_element}"
-
-
-class CostFunding(models.Model):
-    cost_f_id = models.BigAutoField(primary_key=True)
-    program_id = models.OneToOneField(ProgramDetails, related_name="cost_funding", on_delete=models.CASCADE)
-    tuition_fee = models.DecimalField(max_digits=6, decimal_places=1)
-    school_fee = models.DecimalField(max_digits=6, decimal_places=1)
-    cost_of_living = models.CharField(max_length=2000)
-    funding_opportunities = models.CharField(max_length=2000, null=True, blank=True)
-    funding_description = models.CharField(max_length=2000, null=True, blank=True)
-
-    def __str__(self):
-        return f"{self.cost_f_id} {self.tuition_fee}"
-
-
-class Requirement(models.Model):
-    req_id = models.BigAutoField(primary_key=True)
-    program_id = models.OneToOneField(ProgramDetails, related_name="requirement", on_delete=models.CASCADE)
-    academic_requirement = models.CharField(max_length=3000)
-    language_requirement = models.CharField(max_length=3000, null=True, blank=True)
-    application_requirement = models.CharField(max_length=3000)
-    submit_application_to = models.CharField(max_length=3000, null=True, blank=True)
-
-    def __str__(self):
-        return f"{self.req_id} {self.academic_requirement}"
-
-
-class Service(models.Model):
-    service_id = models.BigAutoField(primary_key=True)
-    program_id = models.OneToOneField(ProgramDetails, related_name="service", on_delete=models.CASCADE)
-    accommodation = models.CharField(max_length=3000)
-    general_intl_student_support = models.CharField(max_length=3000)
-    part_time_employment = models.CharField(max_length=3000, null=True, blank=True)
-    career_advisory_service = models.CharField(max_length=3000, null=True, blank=True)
-    special_or_non_special_support = models.CharField(max_length=3000, null=True, blank=True)
-
-    def __str__(self):
-        return f"{self.service_id} {self.general_intl_student_support}"
-
-
-class OnlineProgram(models.Model):
-    online_program_id = models.BigAutoField(primary_key=True)
-    program_id = models.OneToOneField(ProgramDetails, related_name="online_program", on_delete=models.CASCADE,
-                                      null=True, blank=True)
-    online_adaptability = models.CharField(max_length=100, null=True, blank=True)
-    pace_of_course = models.CharField(max_length=100, null=True, blank=True)
-    attendance_phase_in_Nigeria = models.CharField(max_length=100, null=True, blank=True)
-    type_of_online_learning = models.CharField(max_length=100, null=True, blank=True)
-
-    def __str__(self):
-        return f"{self.online_program_id} {self.online_adaptability}"
-
-
-class OnlineLearning(models.Model):
-    online_learning_id = models.BigAutoField(primary_key=True)
-    online_program_id = models.ForeignKey(OnlineProgram, related_name="online_learning", on_delete=models.CASCADE)
-    online_learning = models.CharField(max_length=500, null=True, blank=True)
-
-    def __str__(self):
-        return f"{self.online_learning_id} {self.online_learning}"
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-from rest_framework import serializers
-
-from .models import (Users, Universities, ProgramDetails, Overview, CourseDetails, AssessmentType, InternationalElement,
-                     CostFunding, Requirement, Service, OnlineProgram, OnlineLearning)
-
-
-class ProgramDetailSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ProgramDetails
-        fields = ('program_id', 'uni_id', 'coordinator_name', 'coordinator_address', 'coordinator_phone',
-                  'coordinator_phone', 'coordinator_email', 'program_title', 'program_abbreviation',
-                  'degree_abbreviation', 'program_website', 'instagram_url', 'linkedin_url', 'facebook_url',
-                  'twitter_url', 'youtube_url')
-
-
-
-class UniversitiesSerializer(serializers.ModelSerializer):
-    program_details = ProgramDetailSerializer(many=True)
-
-    class Meta:
-        model = Universities
-        fields = ['uni_id', 'user_id', 'institution_name', 'institution_address', 'institution_location',
-                  'about_university', 'state', 'institution_logo', 'institution_image', 'program_details']
-
-    def create(self, validated_data):
-        program_details_data = validated_data.pop('program_details')
-        program_details = ProgramDetails.objects.create(**program_details_data)
-        universities = Universities.objects.create(program_details=program_details)
-        return universities
-
-
-class OverviewSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Overview
-        fields = ['overview_id', 'program_id', 'degree', 'field_of_study', 'mode_of_study', 'languages', 'start_date',
-                  'tuition_fee', 'school_fee', 'thematic_area', 'program_type', 'teaching_language', 'program_duration',
-                  'application_deadline', 'combine_master_phd', 'joint_degree_program']
-
-
-class AssessmentTypeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = AssessmentType
-        fields = ['ass_type_id', 'course_details_id', 'assessment_type']
-
-
-
-class InternationalElementSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = InternationalElement
-        fields = ['intl_element_id', 'course_details_id', 'international_element']
-
-
 class CourseDetailsSerializer(serializers.ModelSerializer):
     assessment_type = AssessmentTypeSerializer(many=True)
     international_element = InternationalElementSerializer(many=True)
@@ -264,47 +8,72 @@ class CourseDetailsSerializer(serializers.ModelSerializer):
                   'course_specialization', 'diploma_supplement', 'integrated_internship', 'integrated_foreign_language',
                   'assessment_type', 'international_element']
 
+    def create(self, validated_data):
+        assessment_type_datas = validated_data.pop('assessment_type')
+        international_element_datas = validated_data.pop('international_element')
+        course_details = CourseDetails.objects.create(**validated_data)
 
-class CostFundingSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CostFunding
-        fields = ['cost_f_id', 'program_id', 'tuition_fee', 'cost_of_living', 'funding_opportunities',
-                  'funding_description']
+        for assessment_type_data in assessment_type_datas:
+            course_details.assessment_type.create(**assessment_type_data)
+
+        return course_details
+
+    def update(self, instance, validated_data):
+        assessment_type_datas = validated_data.pop('assessment_type')
+        international_element_datas = validated_data.pop('international_element')
+        instance.program_id = validated_data.get('program_id')
+        instance.course_organization = validated_data.get('course_organization')
+        instance.integrated_language = validated_data.get('integrated_language')
+        instance.course_specialization = validated_data.get('course_specialization')
+        instance.diploma_supplement = validated_data.get('diploma_supplement')
+        instance.integrated_internship = validated_data.get('integrated_internship')
+        instance.integrated_foreign_language = validated_data.get('integrated_foreign_language')
+
+        instance.assessment_type.clear()
+        instance.international_element.clear()
+
+        for assessment_type_data in assessment_type_datas:
+            assessment_type, created = AssessmentType.objects.get_or_create(**assessment_type_data)
+            instance.assessment_type.add(assessment_type)
+
+        for international_element_data in international_element_datas:
+            international_element, created = InternationalElement.objects.get_or_create(**international_element_data)
+            instance.international_element.add(international_element)
+
+        instance.save()
+        return instance
 
 
-class RequirementSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Requirement
-        fields = ['req_id', 'program_id', 'academic_requirement', 'language_requirement', 'application_requirement',
-                  'submit_application_to']
 
 
-class ServiceSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Service
-        fields = ['service_id', 'program_id', 'accommodation', 'general_intl_student_support', 'part_time_employment',
-                  'career_advisory_service', 'special_or_non_special_support']
 
 
 class OnlineLearningSerializer(serializers.ModelSerializer):
+    learning_elements = LearningElementSerializer(many=True)
+
     class Meta:
         model = OnlineLearning
-        fields = ['online_learning_id', 'online_program_id', 'online_learning']
-
-
-class OnlineProgramSerializer(serializers.ModelSerializer):
-    online_learning = OnlineLearningSerializer(many=True)
-
-    class Meta:
-        model = OnlineProgram
         fields = ['online_program_id', 'program_id', 'online_adaptability', 'pace_of_course',
-                  'attendance_phase_in_Nigeria', 'type_of_online_learning', 'online_learning']
+                  'attendance_phase_in_Nigeria', 'type_of_online_learning', 'learning_elements']
 
+    def create(self, validated_data):
+        learning_elements_datas = validated_data.pop('learning_elements')
+        online_learning = OnlineLearning.objects.create(**validated_data)
+        for learning_elements_data in learning_elements_datas:
+            online_learning.learning_elements.create(**learning_elements_data)
+        return online_learning
 
-
-
-
-
-
-
+    def update(self, instance, validated_data):
+        learning_elements_datas = validated_data.pop('learning_elements')
+        instance.online_program_id = validated_data.get("online_program_id", instance.online_program_id)
+        instance.program_id = validated_data.get("program_id", instance.program_id)
+        instance.online_adaptability = validated_data.get("online_adaptability", instance.online_adaptability)
+        instance.pace_of_course = validated_data.get("pace_of_course", instance.pace_of_course)
+        instance.attendance_phase_in_Nigeria = validated_data.get("attendance_phase_in_Nigeria", instance.attendance_phase_in_Nigeria)
+        instance.type_of_online_learning = validated_data.get("type_of_online_learning", instance.type_of_online_learning)
+        instance.learning_elements.clear()
+        for learning_elements_data in learning_elements_datas:
+            learning_elements, created = LearningElement.objects.get_or_create(**learning_elements_data)
+            instance.learning_elements.add(learning_elements)
+            instance.save()
+        return instance
