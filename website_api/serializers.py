@@ -5,7 +5,6 @@ from .models import (Users, Universities, Programs, Overview, CourseDetails, Ass
 
 
 class UniversitiesSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Universities
         fields = ['uni_id', 'user_id', 'institution_name', 'institution_address', 'institution_location',
@@ -19,7 +18,6 @@ class ProgramsSerializer(serializers.ModelSerializer):
                   'coordinator_phone', 'coordinator_email', 'program_title', 'program_abbreviation',
                   'degree_abbreviation', 'program_website', 'instagram_url', 'linkedin_url', 'facebook_url',
                   'twitter_url', 'youtube_url')
-
 
 
 class OverviewSerializer(serializers.ModelSerializer):
@@ -36,9 +34,7 @@ class AssessmentTypeSerializer(serializers.ModelSerializer):
         fields = ['ass_type_id', 'assessment_type']
 
 
-
 class InternationalElementSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = InternationalElement
         fields = ['intl_element_id', 'international_element']
@@ -55,8 +51,9 @@ class CourseDetailsSerializer(serializers.ModelSerializer):
                   'assessment_type', 'international_element']
 
     def create(self, validated_data):
-        assessment_type_datas = validated_data.pop('assessment_type')
-        international_element_datas = validated_data.pop('international_element')
+        assessment_type_datas = validated_data.pop('assessment_type', [])
+        international_element_datas = validated_data.pop('international_element', [])
+
         course_details = CourseDetails.objects.create(**validated_data)
 
         for assessment_type_data in assessment_type_datas:
@@ -75,16 +72,16 @@ class CourseDetailsSerializer(serializers.ModelSerializer):
         instance.course_specialization = validated_data.get('course_specialization', instance.course_specialization)
         instance.diploma_supplement = validated_data.get('diploma_supplement', instance.diploma_supplement)
         instance.integrated_internship = validated_data.get('integrated_internship', instance.integrated_internship)
-        instance.integrated_foreign_language = validated_data.get('integrated_foreign_language', instance.integrated_foreign_language)
-        instance.international_element = validated_data.get('international_element', instance.international_element)
-
-        instance.assessment_type.clear()
-
-        for assessment_type_data in assessment_type_datas:
-            assessment_type, created = AssessmentType.objects.get_or_create(**assessment_type_data)
-            instance.assessment_type.add(assessment_type)
+        instance.integrated_foreign_language = validated_data.get('integrated_foreign_language',
+                                                                  instance.integrated_foreign_language)
         instance.save()
-        return instance
+        keep_assessment_type = []
+        existing_assessment_id = [A.id for A in instance.assessment_type_data]
+        for assessment_type_data in assessment_type_datas:
+            if "ass_type_id" in assessment_type_data.key():
+                if AssessmentType.objects.filter(id=assessment_type_data["ass_type_id"]).exist():
+                    A = AssessmentType.objects.get(id=assessment_type_data["ass_type_id"])
+                    A.text = 
 
 
 class CostFundingSerializer(serializers.ModelSerializer):
@@ -95,7 +92,6 @@ class CostFundingSerializer(serializers.ModelSerializer):
 
 
 class RequirementSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Requirement
         fields = ['req_id', 'program_id', 'academic_requirement', 'language_requirement', 'application_requirement',
@@ -136,8 +132,10 @@ class OnlineLearningSerializer(serializers.ModelSerializer):
         instance.program_id = validated_data.get("program_id", instance.program_id)
         instance.online_adaptability = validated_data.get("online_adaptability", instance.online_adaptability)
         instance.pace_of_course = validated_data.get("pace_of_course", instance.pace_of_course)
-        instance.attendance_phase_in_Nigeria = validated_data.get("attendance_phase_in_Nigeria", instance.attendance_phase_in_Nigeria)
-        instance.type_of_online_learning = validated_data.get("type_of_online_learning", instance.type_of_online_learning)
+        instance.attendance_phase_in_Nigeria = validated_data.get("attendance_phase_in_Nigeria",
+                                                                  instance.attendance_phase_in_Nigeria)
+        instance.type_of_online_learning = validated_data.get("type_of_online_learning",
+                                                              instance.type_of_online_learning)
         instance.learning_elements.clear()
         for learning_elements_data in learning_elements_datas:
             learning_elements, created = LearningElement.objects.get_or_create(**learning_elements_data)
