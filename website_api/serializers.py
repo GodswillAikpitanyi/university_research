@@ -65,7 +65,9 @@ class CourseDetailsSerializer(serializers.ModelSerializer):
         return course_details
 
     def update(self, instance, validated_data):
-        assessment_type_datas = validated_data.pop('assessment_type')
+        assessment_type_data = validated_data.pop('assessment_type', [])
+        international_element_data = validated_data.pop('international_element', [])
+
         instance.program_id = validated_data.get('program_id', instance.program_id)
         instance.course_organization = validated_data.get('course_organization', instance.course_organization)
         instance.integrated_language = validated_data.get('integrated_language', instance.integrated_language)
@@ -75,13 +77,19 @@ class CourseDetailsSerializer(serializers.ModelSerializer):
         instance.integrated_foreign_language = validated_data.get('integrated_foreign_language',
                                                                   instance.integrated_foreign_language)
         instance.save()
-        keep_assessment_type = []
-        existing_assessment_id = [A.id for A in instance.assessment_type_data]
-        for assessment_type_data in assessment_type_datas:
-            if "ass_type_id" in assessment_type_data.key():
-                if AssessmentType.objects.filter(id=assessment_type_data["ass_type_id"]).exist():
-                    A = AssessmentType.objects.get(id=assessment_type_data["ass_type_id"])
-                    A.text = 
+
+        instance.assessment_type.all().delete()
+        for ass_type_data in assessment_type_data:
+            ass_type_instance = AssessmentType.objects.create(**ass_type_data)
+            instance.assessment_type.add(ass_type_instance)
+
+        instance.international_element.all().delete()
+        for intl_element_data in international_element_data:
+            intl_element_instance = InternationalElement.objects.create(**intl_element_data)
+            instance.international_element.add(intl_element_instance)
+
+        return instance
+
 
 
 class CostFundingSerializer(serializers.ModelSerializer):
