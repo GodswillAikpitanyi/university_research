@@ -13,18 +13,13 @@ GENDER = (
     ("FEMALE", "FEMALE")
 )
 
-USER_ROLES = (
-    ("NORMAL", "NORMAL"),
-    ("POSTER", "POSTER")
-)
-
 
 class Users(models.Model):
     user_id = models.BigAutoField(primary_key=True)
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
     username = models.CharField(max_length=100, unique=True)
-    user_role = models.CharField(max_length=50, choices=USER_ROLES, default='NORMAL')
+    user_role = models.CharField(max_length=50)
     email = models.EmailField(max_length=50, unique=True)
     password = models.CharField(max_length=100)
     gender = models.CharField(max_length=10, choices=GENDER, default='MALE')
