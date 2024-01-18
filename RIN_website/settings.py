@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'website_api',
     'rest_framework',
+    'corsheaders',
     'phonenumber_field'
 ]
 
@@ -52,7 +53,17 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
+
+CORS_ORIGIN_ALLOW_ALL = False
+
+CORS_ORIGIN_WHITELIST = [
+    "http://localhost:8000",
+]
+
+CORS_ALLOWED_CREDENTIALS = True
+
 
 ROOT_URLCONF = 'RIN_website.urls'
 
@@ -135,4 +146,5 @@ REST_FRAMEWORK = {
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
+
 
