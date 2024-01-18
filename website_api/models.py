@@ -2,18 +2,6 @@ from django.db import models
 from phonenumber_field.modelfields import PhoneNumberField
 
 
-
-AVAILABILITY_CHOICES = (
-    ("YES", "YES"),
-    ("NO", "NO"),
-)
-
-GENDER = (
-    ("MALE", "MALE"),
-    ("FEMALE", "FEMALE")
-)
-
-
 class Users(models.Model):
     user_id = models.BigAutoField(primary_key=True)
     first_name = models.CharField(max_length=100)
@@ -22,7 +10,7 @@ class Users(models.Model):
     user_role = models.CharField(max_length=50)
     email = models.EmailField(max_length=50, unique=True)
     password = models.CharField(max_length=100)
-    gender = models.CharField(max_length=10, choices=GENDER, default='MALE')
+    gender = models.CharField(max_length=10)
     registration_date = models.DateField()
 
     def __str__(self):
@@ -85,15 +73,15 @@ class Overview(models.Model):
     mode_of_study = models.CharField(max_length=200)
     languages = models.CharField(max_length=500, null=True, blank=True)
     start_date = models.DateField()
-    tuition_fee = models.CharField(max_length=1000, choices=AVAILABILITY_CHOICES, default='YES')
-    school_fee = models.CharField(max_length=1000, choices=AVAILABILITY_CHOICES, default='YES')
+    tuition_fee = models.CharField(max_length=1000)
+    school_fee = models.CharField(max_length=1000)
     thematic_area = models.CharField(max_length=1000)
     program_type = models.CharField(max_length=1000)
     teaching_language = models.CharField(max_length=1000)
     program_duration = models.CharField(max_length=1000)
     application_deadline = models.DateField()
-    combine_master_phd = models.CharField(max_length=1000, null=True, blank=True, choices=AVAILABILITY_CHOICES, default='YES')
-    joint_degree_program = models.CharField(max_length=1000, null=True, blank=True, choices=AVAILABILITY_CHOICES, default='YES')
+    combine_master_phd = models.CharField(max_length=1000, null=True, blank=True)
+    joint_degree_program = models.CharField(max_length=1000, null=True, blank=True)
 
     def __str__(self):
         return f"{self.program_id} {self.degree}"
@@ -122,10 +110,10 @@ class CourseDetails(models.Model):
     course_details_id = models.BigAutoField(primary_key=True)
     program_id = models.OneToOneField(Programs, related_name="course_details", on_delete=models.CASCADE)
     course_organization = models.CharField(max_length=5000)
-    integrated_language = models.CharField(max_length=5000, null=True, blank=True, choices=AVAILABILITY_CHOICES, default='YES')
+    integrated_language = models.CharField(max_length=5000, null=True, blank=True)
     course_specialization = models.CharField(max_length=5000)
-    diploma_supplement = models.CharField(max_length=5000, null=True, blank=True, choices=AVAILABILITY_CHOICES, default='YES')
-    integrated_internship = models.CharField(max_length=5000, null=True, blank=True, choices=AVAILABILITY_CHOICES, default='YES')
+    diploma_supplement = models.CharField(max_length=5000, null=True, blank=True)
+    integrated_internship = models.CharField(max_length=5000, null=True, blank=True)
     integrated_foreign_language = models.CharField(max_length=5000, null=True, blank=True)
     assessment_type = models.ManyToManyField(AssessmentType, related_name='course_details')
     international_element = models.ManyToManyField(InternationalElement, related_name='course_details')
@@ -137,8 +125,8 @@ class CourseDetails(models.Model):
 class CostFunding(models.Model):
     cost_f_id = models.BigAutoField(primary_key=True)
     program_id = models.OneToOneField(Programs, related_name="cost_funding", on_delete=models.CASCADE)
-    tuition_fee = models.DecimalField(max_digits=6, decimal_places=1)
-    school_fee = models.DecimalField(max_digits=6, decimal_places=1)
+    tuition_fee = models.CharField(max_length=2000)
+    school_fee = models.CharField(max_length=2000)
     cost_of_living = models.CharField(max_length=2000)
     funding_opportunities = models.CharField(max_length=2000, null=True, blank=True)
     funding_description = models.CharField(max_length=2000, null=True, blank=True)
