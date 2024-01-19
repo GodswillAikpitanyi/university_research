@@ -3,6 +3,7 @@ from phonenumber_field.modelfields import PhoneNumberField
 
 
 class Users(models.Model):
+    "This is a model that desribe the deatails of the users"
     user_id = models.BigAutoField(primary_key=True)
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
