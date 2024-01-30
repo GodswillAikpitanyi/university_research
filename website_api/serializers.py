@@ -10,6 +10,16 @@ class UniversitiesSerializer(serializers.ModelSerializer):
         fields = ['uni_id', 'user_id', 'institution_name', 'institution_address', 'institution_location',
                   'about_university', 'state', 'institution_logo', 'institution_image']
 
+        def update(self, instance, validated_data):
+            instance.institution_name = validated_data.get('institution_name', instance.institution_name)
+            instance.institution_address = validated_data.get('institution_address', instance.institution_address)
+            instance.institution_location = validated_data.get('institution_location', instance.institution_location)
+            instance.about_university = validated_data.get('about_university', instance.about_university)
+            instance.state = validated_data.get('state', instance.state)
+
+
+            instance.save()
+            return instance
 
 class ProgramsSerializer(serializers.ModelSerializer):
     class Meta:
